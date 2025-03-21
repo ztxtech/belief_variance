@@ -62,11 +62,15 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 
+<!-- 在 HTML 中添加一个用于显示错误信息的元素 -->
+
 <body>
     <div id="control-panel">
         <h1>Monte Carlo Experiment Visualization</h1>
         <!-- 新增用于显示 Markdown 内容的容器 -->
         <div id="markdown-intro"></div>
+        <!-- 新增错误信息显示元素 -->
+        <p id="error-message" style="color: red; display: none;"></p>
         <div class="slider-container">
             <label for="red-prob">Mass of Red Balls m(R): <span id="red-prob-value">0.5</span></label>
             <input type="range" id="red-prob" min="0" max="100" value="50">
@@ -123,10 +127,21 @@ The experiment results will display the number of each color of balls, the mass 
         // 将 Markdown 文本转换为 HTML 并显示
         markdownIntro.innerHTML = marked.parse(markdownText);
 
+        const errorMessage = document.getElementById('error-message');
+
         function updateProbValues() {
             const redProb = parseFloat(redProbInput.value) / 100;
             const blueProb = parseFloat(blueProbInput.value) / 100;
             const gradientProb = 1 - redProb - blueProb;
+
+            // 检查概率和是否超过1
+            if (redProb + blueProb > 1) {
+                errorMessage.textContent = 'Error: The sum of mass cannot exceed 1.';
+                errorMessage.style.display = 'block';
+                return;
+            } else {
+                errorMessage.style.display = 'none';
+            }
 
             redProbValue.textContent = redProb.toFixed(2);
             blueProbValue.textContent = blueProb.toFixed(2);
@@ -139,6 +154,15 @@ The experiment results will display the number of each color of balls, the mass 
             const redProb = parseFloat(redProbInput.value) / 100;
             const blueProb = parseFloat(blueProbInput.value) / 100;
             const gradientProb = 1 - redProb - blueProb;
+
+            // 检查概率和是否超过1
+            if (redProb + blueProb > 1) {
+                errorMessage.textContent = 'Error: The sum of mass cannot exceed 1.';
+                errorMessage.style.display = 'block';
+                return;
+            } else {
+                errorMessage.style.display = 'none';
+            }
 
             const experimentCount = parseInt(experimentCountInput.value);
 
