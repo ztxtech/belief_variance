@@ -15,7 +15,7 @@ This repository contains an interactive HTML visualization tool designed to simu
 1. **Adjust Parameters**:
    - **m(R)**: Slider controls the mass assigned to individual red balls
    - **m(B)**: Slider controls the mass assigned to individual blue balls
-   - **Number of Experiments**: Adjust simulation iterations (1-10,000)
+   - **Number of Experiments**: Adjust simulation iterations (1 - 10,000)
    
 2. **Observe Results**:
    - Visual distribution of balls in the canvas
@@ -31,9 +31,10 @@ This repository contains an interactive HTML visualization tool designed to simu
 - **Mass Exchange**: Demonstrates variance behavior under different focal element allocations as discussed in Section 4.3
 
 ## Run the Experiment
-1. Download the HTML file
-2. Open directly in a web browser
-3. Use sliders to modify parameters and observe results
+1. You can directly access the experiment at [https://ztxtech.github.io/belief_var_visualization/index.html](https://ztxtech.github.io/belief_var_visualization/index.html).
+2. Alternatively, download the HTML file.
+3. Open directly in a web browser.
+4. Use sliders to modify parameters and observe results
 
 ## Dependencies
 - Web browser with HTML5 Canvas support
