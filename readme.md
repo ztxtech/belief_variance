@@ -40,6 +40,10 @@ This repository contains an interactive HTML visualization tool designed to simu
 - Web browser with HTML5 Canvas support
 - Marked.js for Markdown rendering (included via CDN)
 
+## Developer Information
+- Tianxiang Zhan, UESTC
+- Xingyuan Chen, UESTC
+
 ## License
 MIT License - see LICENSE file for details
 
