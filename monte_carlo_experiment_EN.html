@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monte Carlo Experiment Visualization</title>
+    <style>
+        body {
+            font-family: "Times New Roman", serif;
+            /* 修改字体为 Times New Roman */
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+        }
+
+        #control-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        #canvas-container {
+            flex: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff;
+        }
+
+        #canvas {
+            border: 1px solid black;
+            width: 90%;
+            height: 90%;
+        }
+
+        .slider-container {
+            margin: 10px 0;
+            width: 300px;
+        }
+
+        .slider-container label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .slider-container input[type="range"] {
+            width: 100%;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+    </style>
+    <!-- 引入 marked 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+    <div id="control-panel">
+        <h1>Monte Carlo Experiment Visualization</h1>
+        <!-- 新增用于显示 Markdown 内容的容器 -->
+        <div id="markdown-intro"></div>
+        <div class="slider-container">
+            <label for="red-prob">Mass of Red Balls m(R): <span id="red-prob-value">0.5</span></label>
+            <input type="range" id="red-prob" min="0" max="100" value="50">
+        </div>
+        <div class="slider-container">
+            <label for="blue-prob">Mass of Blue Balls m(B): <span id="blue-prob-value">0.3</span></label>
+            <input type="range" id="blue-prob" min="0" max="100" value="30">
+        </div>
+        <div class="slider-container">
+            <label for="experiment-count">Number of Experiments: <span id="experiment-count-value">1000</span></label>
+            <input type="range" id="experiment-count" min="1" max="10000" value="1000">
+        </div>
+        <div id="result">
+            <p>Number of Red Balls: <span id="red-count">0</span></p>
+            <p>Number of Blue Balls: <span id="blue-count">0</span></p>
+            <p>Number of Indistinguishable Balls: <span id="gradient-count">0</span></p>
+            <p>Mass of Indistinguishable Balls m(RB): <span id="gradient-prob-value">0.2</span></p>
+            <p>Entropy H: <span id="entropy-value">0</span></p>
+            <p>Variance V: <span id="variance-value">0</span></p>
+        </div>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas" width="400" height="400"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const redProbInput = document.getElementById('red-prob');
+        const blueProbInput = document.getElementById('blue-prob');
+        const experimentCountInput = document.getElementById('experiment-count');
+        const redProbValue = document.getElementById('red-prob-value');
+        const blueProbValue = document.getElementById('blue-prob-value');
+        const experimentCountValue = document.getElementById('experiment-count-value');
+        const redCount = document.getElementById('red-count');
+        const blueCount = document.getElementById('blue-count');
+        const gradientCount = document.getElementById('gradient-count');
+        const gradientProbValue = document.getElementById('gradient-prob-value');
+        const entropyValue = document.getElementById('entropy-value');
+        const varianceValue = document.getElementById('variance-value');
+        const markdownIntro = document.getElementById('markdown-intro');
+
+        // 定义 Markdown 格式的介绍内容
+        const markdownText = `
+### Experiment Description
+This experiment uses the Monte Carlo method to simulate the random distribution of balls. You can adjust the probabilities of red balls, blue balls, and indistinguishable balls, as well as the number of experiments, using the sliders below.
+- **Mass of Red Balls m(R)**: Controls the likelihood of red balls appearing.
+- **Mass of Blue Balls m(B)**: Controls the likelihood of blue balls appearing.
+- **Mass of Indistinguishable Balls m({R,B})**: Controls the likelihood of indistinguishable balls appearing.
+- **Number of Experiments**: Determines the total number of simulated ball throws.
+
+The experiment results will display the number of each color of balls, the mass of red-blue gradient balls, entropy, and variance in real-time.
+`;
+
+        // 将 Markdown 文本转换为 HTML 并显示
+        markdownIntro.innerHTML = marked.parse(markdownText);
+
+        function updateProbValues() {
+            const redProb = parseFloat(redProbInput.value) / 100;
+            const blueProb = parseFloat(blueProbInput.value) / 100;
+            const gradientProb = 1 - redProb - blueProb;
+
+            redProbValue.textContent = redProb.toFixed(2);
+            blueProbValue.textContent = blueProb.toFixed(2);
+            gradientProbValue.textContent = gradientProb.toFixed(2);
+            const entropy = calculateEntropy(redProb, blueProb, gradientProb);
+            calculateVariance(redProb, blueProb, gradientProb, entropy);
+        }
+
+        function runExperiment() {
+            const redProb = parseFloat(redProbInput.value) / 100;
+            const blueProb = parseFloat(blueProbInput.value) / 100;
+            const gradientProb = 1 - redProb - blueProb;
+
+            const experimentCount = parseInt(experimentCountInput.value);
+
+            let redBallCount = 0;
+            let blueBallCount = 0;
+            let gradientBallCount = 0;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < experimentCount; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const rand = Math.random();
+
+                if (rand < redProb) {
+                    ctx.fillStyle = 'red';
+                    redBallCount++;
+                } else if (rand < redProb + blueProb) {
+                    ctx.fillStyle = 'blue';
+                    blueBallCount++;
+                } else {
+                    const gradient = ctx.createLinearGradient(x - 4, y, x + 4, y);
+                    gradient.addColorStop(0, 'red');
+                    gradient.addColorStop(0.5, 'white');
+                    gradient.addColorStop(1, 'blue');
+                    ctx.fillStyle = gradient;
+                    gradientBallCount++;
+                }
+
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+            redCount.textContent = redBallCount;
+            blueCount.textContent = blueBallCount;
+            gradientCount.textContent = gradientBallCount;
+            const entropy = calculateEntropy(redProb, blueProb, gradientProb);
+            calculateVariance(redProb, blueProb, gradientProb, entropy);
+        }
+
+        function calculateEntropy(redProb, blueProb, gradientProb) {
+            let entropy = 0;
+            if (redProb > 0) {
+                entropy -= redProb * Math.log2(redProb);
+            }
+            if (blueProb > 0) {
+                entropy -= blueProb * Math.log2(blueProb);
+            }
+            if (gradientProb > 0) {
+                entropy -= gradientProb * Math.log2(gradientProb / 3);
+            }
+            entropyValue.textContent = entropy.toFixed(4);
+            return entropy;
+        }
+
+        function calculateVariance(redProb, blueProb, gradientProb, entropy) {
+            let variance = 0;
+            if (redProb > 0) {
+                const logRed = Math.log2(redProb);
+                variance += Math.pow(-logRed - entropy, 2) * redProb;
+            }
+            if (blueProb > 0) {
+                const logBlue = Math.log2(blueProb);
+                variance += Math.pow(-logBlue - entropy, 2) * blueProb;
+            }
+            if (gradientProb > 0) {
+                const logGradient = Math.log2(gradientProb / 3);
+                variance += Math.pow(-logGradient - entropy, 2) * gradientProb;
+            }
+            varianceValue.textContent = variance.toFixed(4);
+        }
+
+        redProbInput.addEventListener('input', () => {
+            updateProbValues();
+            runExperiment();
+        });
+
+        blueProbInput.addEventListener('input', () => {
+            updateProbValues();
+            runExperiment();
+        });
+
+        experimentCountInput.addEventListener('input', () => {
+            experimentCountValue.textContent = experimentCountInput.value;
+            runExperiment();
+        });
+
+        updateProbValues();
+        runExperiment();
+    </script>
+</body>
+
+</html>
