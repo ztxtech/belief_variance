@@ -8,7 +8,6 @@
     <style>
         body {
             font-family: "Times New Roman", serif;
-            /* 修改字体为 Times New Roman */
             display: flex;
             flex-direction: row;
             align-items: stretch;
@@ -58,18 +57,13 @@
             margin-top: 20px;
         }
     </style>
-    <!-- 引入 marked 库 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
-
-<!-- 在 HTML 中添加一个用于显示错误信息的元素 -->
 
 <body>
     <div id="control-panel">
         <h1>Monte Carlo Experiment Visualization</h1>
-        <!-- 新增用于显示 Markdown 内容的容器 -->
         <div id="markdown-intro"></div>
-        <!-- 新增错误信息显示元素 -->
         <p id="error-message" style="color: red; display: none;"></p>
         <div class="slider-container">
             <label for="red-prob">Mass of Red Balls m(R): <span id="red-prob-value">0.5</span></label>
@@ -111,8 +105,6 @@
         const entropyValue = document.getElementById('entropy-value');
         const varianceValue = document.getElementById('variance-value');
         const markdownIntro = document.getElementById('markdown-intro');
-
-        // 定义 Markdown 格式的介绍内容
         const markdownText = `
 ### Experiment Description
 This experiment uses the Monte Carlo method to simulate the random distribution of balls. You can adjust the probabilities of red balls, blue balls, and indistinguishable balls, as well as the number of experiments, using the sliders below.
@@ -123,18 +115,12 @@ This experiment uses the Monte Carlo method to simulate the random distribution 
 
 The experiment results will display the number of each color of balls, the mass of red-blue gradient balls, entropy, and variance in real-time.
 `;
-
-        // 将 Markdown 文本转换为 HTML 并显示
         markdownIntro.innerHTML = marked.parse(markdownText);
-
         const errorMessage = document.getElementById('error-message');
-
         function updateProbValues() {
             const redProb = parseFloat(redProbInput.value) / 100;
             const blueProb = parseFloat(blueProbInput.value) / 100;
             const gradientProb = 1 - redProb - blueProb;
-
-            // 检查概率和是否超过1
             if (redProb + blueProb > 1) {
                 errorMessage.textContent = 'Error: The sum of mass cannot exceed 1.';
                 errorMessage.style.display = 'block';
@@ -142,20 +128,16 @@ The experiment results will display the number of each color of balls, the mass 
             } else {
                 errorMessage.style.display = 'none';
             }
-
             redProbValue.textContent = redProb.toFixed(2);
             blueProbValue.textContent = blueProb.toFixed(2);
             gradientProbValue.textContent = gradientProb.toFixed(2);
             const entropy = calculateEntropy(redProb, blueProb, gradientProb);
             calculateVariance(redProb, blueProb, gradientProb, entropy);
         }
-
         function runExperiment() {
             const redProb = parseFloat(redProbInput.value) / 100;
             const blueProb = parseFloat(blueProbInput.value) / 100;
             const gradientProb = 1 - redProb - blueProb;
-
-            // 检查概率和是否超过1
             if (redProb + blueProb > 1) {
                 errorMessage.textContent = 'Error: The sum of mass cannot exceed 1.';
                 errorMessage.style.display = 'block';
@@ -163,20 +145,15 @@ The experiment results will display the number of each color of balls, the mass 
             } else {
                 errorMessage.style.display = 'none';
             }
-
             const experimentCount = parseInt(experimentCountInput.value);
-
             let redBallCount = 0;
             let blueBallCount = 0;
             let gradientBallCount = 0;
-
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             for (let i = 0; i < experimentCount; i++) {
                 const x = Math.random() * canvas.width;
                 const y = Math.random() * canvas.height;
                 const rand = Math.random();
-
                 if (rand < redProb) {
                     ctx.fillStyle = 'red';
                     redBallCount++;
@@ -191,19 +168,16 @@ The experiment results will display the number of each color of balls, the mass 
                     ctx.fillStyle = gradient;
                     gradientBallCount++;
                 }
-
                 ctx.beginPath();
                 ctx.arc(x, y, 4, 0, 2 * Math.PI);
                 ctx.fill();
             }
-
             redCount.textContent = redBallCount;
             blueCount.textContent = blueBallCount;
             gradientCount.textContent = gradientBallCount;
             const entropy = calculateEntropy(redProb, blueProb, gradientProb);
             calculateVariance(redProb, blueProb, gradientProb, entropy);
         }
-
         function calculateEntropy(redProb, blueProb, gradientProb) {
             let entropy = 0;
             if (redProb > 0) {
@@ -218,7 +192,6 @@ The experiment results will display the number of each color of balls, the mass 
             entropyValue.textContent = entropy.toFixed(4);
             return entropy;
         }
-
         function calculateVariance(redProb, blueProb, gradientProb, entropy) {
             let variance = 0;
             if (redProb > 0) {
@@ -235,22 +208,18 @@ The experiment results will display the number of each color of balls, the mass 
             }
             varianceValue.textContent = variance.toFixed(4);
         }
-
         redProbInput.addEventListener('input', () => {
             updateProbValues();
             runExperiment();
         });
-
         blueProbInput.addEventListener('input', () => {
             updateProbValues();
             runExperiment();
         });
-
         experimentCountInput.addEventListener('input', () => {
             experimentCountValue.textContent = experimentCountInput.value;
             runExperiment();
         });
-
         updateProbValues();
         runExperiment();
     </script>
