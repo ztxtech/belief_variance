@@ -5,21 +5,6 @@ This project conducts classification experiments centered around the paper "Vari
 ## Project Overview
 This project implements a classification experiment based on the variance of belief information in Python. The main steps include data loading, Gaussian model construction, data conversion to mass distributions, evidence fusion, and final classification decision - making. Different weight calculation methods, such as those based on Deng entropy and a combination of Deng entropy and information variance, are used to evaluate their performance in classification tasks.
 
-## Code Structure
-belief_variance/
-├── cache/              # Directory for caching dataset files
-├── doc/                # Documentation directory, including readme.md
-├── out/                # Directory for experiment result output
-├── src/                # Source code directory
-│   ├── data.py         # Module for data loading and processing
-│   ├── fusionf.py      # Module for evidence fusion
-│   ├── gaussian.py     # Module for Gaussian model construction
-│   ├── weightf.py      # Module for weight calculation
-│   └── utils.py        # Utility function module
-├── run.py              # Main running script
-└── requirements.txt    # List of dependent libraries
-
-
 ## Steps to Run
 1. **Install Dependencies**:
     ```bash
